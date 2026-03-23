@@ -19,14 +19,14 @@ const seedUsers = async () => {
         const users = [
             { 
                 name: 'Super Admin', 
-                email: 'REPLACE_WITH_YOUR_EMAIL@example.com', // ✏️ CHANGE THIS
-                password: 'REPLACE_WITH_YOUR_PASSWORD',      // ✏️ CHANGE THIS
+                email: 'admin@kdmpmacultd.com',
+                password: 'admin123',
                 role: 'Admin' 
             },
             { 
                 name: 'HR Manager', 
-                email: 'manager@example.com', 
-                password: 'manager123', 
+                email: 'manager@kdmpmacultd.com',
+                password: 'manager123',
                 role: 'HR Manager' 
             }
         ];

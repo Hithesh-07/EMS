@@ -169,8 +169,8 @@ const Dashboard = () => {
                     {/* Brand Card */}
                     <div className="mt-8 bg-primary-container rounded-2xl p-6 text-white relative overflow-hidden shadow-lg shadow-primary/20">
                         <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                        <h4 className="font-headline font-bold text-xl mb-2 relative z-10 tracking-tight">Editorial Authority HR</h4>
-                        <p className="text-sm text-white/80 mb-6 font-medium relative z-10 leading-relaxed pr-8">Unified management for the premier administrative portal.</p>
+                        <h4 className="font-headline font-bold text-xl mb-2 relative z-10 tracking-tight uppercase">KDMPMACULTD</h4>
+                        <p className="text-sm text-white/80 mb-6 font-medium relative z-10 leading-relaxed pr-8 uppercase">Unified management for the premier dairy portal.</p>
                         <button className="bg-white text-[#1a4fa0] px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide hover:shadow-lg transition-all relative z-10">
                             Help Documentation
                         </button>

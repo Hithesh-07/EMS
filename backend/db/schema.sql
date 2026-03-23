@@ -161,16 +161,15 @@ CREATE TABLE audit_log (
     action_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-/* Seed initial Admin (Password is 'admin123' bcrypt hash placeholder) */
-/* The hash below is for 'admin123' */
+/* Seed initial Admin (Credential: admin@kdmpmacultd.com / admin123) */
 INSERT INTO users (name, email, password_hash, role) VALUES 
-('Super Admin', 'admin@editorialauthority.com', '$2a$10$Xm3tL/wP9w/1wQx0E6B6P.o7tT9y3fO5.kQ3XkQs.nQw1Wv0LXZF6', 'Admin');
+('Super Admin', 'admin@kdmpmacultd.com', '$2a$10$l1NF9etZZEnQP/3ZSnDFN.5bcYef134lTEaYssnUcPCRWnmP/9wvq', 'Admin');
 
 INSERT INTO departments (dept_name, dept_code) VALUES 
-('Human Resources', 'HR'), ('Information Technology', 'IT'), ('Editorial', 'ED'), ('Production', 'PR');
+('Milk Procurement', 'MP'), ('Production & Processing', 'PP'), ('Quality Control', 'QC'), ('Engineering & Maintenance', 'EM'), ('Human Resources', 'HR'), ('Finance & Accounts', 'FA');
 
 INSERT INTO designations (desig_name, grade) VALUES 
-('Manager', 'M1'), ('Senior Editor', 'E2'), ('Developer', 'T1'), ('Accountant', 'F1');
+('General Manager', 'G1'), ('Assistant Manager', 'M1'), ('Milk Procurement Officer', 'O1'), ('Technical Officer', 'T1'), ('Senior Superintendent', 'S1'), ('Plant Operator', 'P1'), ('Lab Technician', 'L1'), ('Office Assistant', 'A1');
 
 INSERT INTO locations (loc_name, loc_code) VALUES 
-('New Delhi HQ', 'DEL'), ('Mumbai Branch', 'BOM'), ('Bangalore Hub', 'BLR');
+('Kurnool (Head Office)', 'KNL'), ('Nandyal (Plant)', 'NDL'), ('Adoni (Procurement Circle)', 'ADN');

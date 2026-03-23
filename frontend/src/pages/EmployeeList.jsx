@@ -5,7 +5,7 @@ import api from '../api/axios';
 
 const EmployeeList = () => {
     const navigate = useNavigate();
-    const { isAdmin } = useAuth();
+    const { isAdmin, canManageEmployees } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterDept, setFilterDept] = useState('');
     const [filterStatus, setFilterStatus] = useState('Active');
@@ -14,6 +14,9 @@ const EmployeeList = () => {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [pagination, setPagination] = useState({ total: 0, limit: 10 });
+    const [deleteTarget, setDeleteTarget] = useState(null); // { emp_id, full_name }
+    const [deleting, setDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -55,6 +58,20 @@ const EmployeeList = () => {
         return () => clearTimeout(timeoutId);
     }, [searchTerm, filterDept, filterStatus, page]);
 
+    const handleDelete = async () => {
+        if (!deleteTarget) return;
+        setDeleting(true); setDeleteError('');
+        try {
+            await api.delete(`/employees/${deleteTarget.emp_id}`);
+            setEmployees(prev => prev.filter(e => e.emp_id !== deleteTarget.emp_id));
+            setDeleteTarget(null);
+        } catch (err) {
+            setDeleteError(err.response?.data?.message || 'Failed to delete employee.');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     const getStatusBadge = (status) => {
         switch(status) {
             case 'Active': return <span className="bg-success-container/30 text-success px-3 py-1 rounded-full text-xs font-bold tracking-wider">Active</span>;
@@ -66,6 +83,7 @@ const EmployeeList = () => {
     };
 
     return (
+        <>
         <div className="w-full animate-in fade-in duration-500">
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -155,8 +173,18 @@ const EmployeeList = () => {
                                     <tr key={emp.emp_id} className={`border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}>
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm shrink-0 uppercase">
-                                                    {emp.full_name ? emp.full_name.split(' ').map(n=>n[0]).join('').substring(0, 2) : 'EM'}
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 uppercase">
+                                                    {emp.photo_url ? (
+                                                        <img 
+                                                            src={emp.photo_url.startsWith('http') ? emp.photo_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${emp.photo_url}`} 
+                                                            alt={emp.full_name} 
+                                                            className="w-full h-full object-cover" 
+                                                        />
+                                                    ) : (
+                                                        <span className="text-slate-400 text-xs font-bold">
+                                                            {emp.full_name ? emp.full_name.split(' ').map(n=>n[0]).join('').substring(0, 2) : 'EM'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-sm text-slate-800">{emp.full_name}</div>
@@ -173,13 +201,24 @@ const EmployeeList = () => {
                                             {getStatusBadge(emp.status)}
                                         </td>
                                         <td className="py-4 px-6 text-right">
-                                            <button 
-                                                onClick={() => navigate(`/employees/profile?id=${emp.emp_id}`)} 
-                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-[#1a4fa0] hover:text-white transition-colors"
-                                                title="View Profile"
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">visibility</span>
-                                            </button>
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <button 
+                                                    onClick={() => navigate(`/employees/profile?id=${emp.emp_id}`)} 
+                                                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-[#1a4fa0] hover:text-white transition-colors"
+                                                    title="View Profile"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                                </button>
+                                                {isAdmin() && (
+                                                    <button
+                                                        onClick={() => { setDeleteTarget({ emp_id: emp.emp_id, full_name: emp.full_name }); setDeleteError(''); }}
+                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                                                        title="Remove Employee"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -214,6 +253,53 @@ const EmployeeList = () => {
                 </div>
             </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {deleteTarget && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-red-50 px-6 py-5 flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <span className="material-symbols-outlined text-red-500 text-2xl">warning</span>
+                        </div>
+                        <div>
+                            <h3 className="font-headline font-black text-red-700 text-lg">Remove Employee</h3>
+                            <p className="text-sm text-red-600 mt-1">This action will mark the employee as deleted and cannot be undone from the UI.</p>
+                        </div>
+                    </div>
+                    <div className="px-6 py-5">
+                        <p className="text-sm text-slate-700">
+                            Are you sure you want to remove <span className="font-black text-slate-900">{deleteTarget.full_name}</span>?
+                            <br />
+                            <span className="text-xs text-slate-500 font-mono mt-1 block">{deleteTarget.emp_id}</span>
+                        </p>
+                        <p className="text-xs text-slate-500 mt-3 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                            ℹ️ The record is preserved in the database (soft delete) and an audit log entry is written automatically.
+                        </p>
+                        {deleteError && (
+                            <div className="mt-3 text-sm text-red-600 font-medium bg-red-50 p-3 rounded-lg border border-red-100">{deleteError}</div>
+                        )}
+                    </div>
+                    <div className="px-6 pb-5 flex items-center justify-end gap-3">
+                        <button
+                            onClick={() => setDeleteTarget(null)}
+                            className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-colors disabled:opacity-60 shadow-md"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">{deleting ? 'progress_activity' : 'delete'}</span>
+                            {deleting ? 'Removing...' : 'Confirm Delete'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 

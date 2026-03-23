@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import EmployeeRegistration from './pages/EmployeeRegistration';
+import EmployeeEdit from './pages/EmployeeEdit';
 import EmployeeList from './pages/EmployeeList';
 import EmployeeProfile from './pages/EmployeeProfile';
 import TransferList from './pages/TransferList';
@@ -11,6 +12,7 @@ import RetirementExit from './pages/RetirementExit';
 import Reports from './pages/Reports';
 import UserManagement from './pages/UserManagement';
 import DocumentVault from './pages/DocumentVault';
+import Announcements from './pages/Announcements';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -36,6 +38,11 @@ function AppContent() {
                   <EmployeeRegistration />
                 </ProtectedRoute>
               } />
+              <Route path="employees/edit" element={
+                <ProtectedRoute canAccess={canManageEmployees}>
+                  <EmployeeEdit />
+                </ProtectedRoute>
+              } />
               <Route path="employees/profile" element={<EmployeeProfile />} />
               <Route path="transfers" element={<TransferList />} />
               <Route path="transfers/new" element={
@@ -52,6 +59,11 @@ function AppContent() {
               <Route path="admin" element={
                 <ProtectedRoute canAccess={isAdmin}>
                   <UserManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="announcements" element={
+                <ProtectedRoute canAccess={isAdmin}>
+                  <Announcements />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />

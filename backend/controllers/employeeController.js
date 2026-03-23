@@ -11,7 +11,7 @@ exports.getEmployees = async (req, res) => {
             LEFT JOIN departments d ON e.dept_id = d.dept_id
             LEFT JOIN designations des ON e.desig_id = des.desig_id
             LEFT JOIN locations l ON e.loc_id = l.loc_id
-            WHERE 1=1
+            WHERE e.status != 'Deleted'
         `;
         const params = [];
 
@@ -60,20 +60,44 @@ exports.createEmployee = async (req, res) => {
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
-        const data = req.body;
+        let data = req.body;
+        
+        // Handle multipart data if sent as stringified JSON under 'data' field
+        // or just direct body if individual fields sent
+        if (data.data && typeof data.data === 'string') {
+            data = JSON.parse(data.data);
+        }
 
         const emp_id = await generateEmpId(data.dept_id);
+        const photo_url = req.file ? `/uploads/photos/${req.file.filename}` : (data.photo_url || null);
 
         const empData = {
-            emp_id, full_name: data.full_name, date_of_birth: data.date_of_birth,
-            gender: data.gender, blood_group: data.blood_group, aadhaar_number: data.aadhaar_number,
-            pan_number: data.pan_number, mobile: data.mobile, email: data.email,
-            permanent_address: data.permanent_address, current_address: data.current_address,
-            photo_url: data.photo_url || null, dept_id: data.dept_id, desig_id: data.desig_id,
-            loc_id: data.loc_id, date_of_joining: data.date_of_joining, employment_type: data.employment_type,
-            pf_applicable: data.pf_applicable || false, esi_applicable: data.esi_applicable || false,
-            basic_pay: data.basic_pay, hra: data.hra || 0, da: data.da || 0, other_allowances: data.other_allowances || 0,
-            bank_account_number: data.bank_account_number, ifsc_code: data.ifsc_code, status: 'Active'
+            emp_id, 
+            full_name: data.full_name, 
+            date_of_birth: data.date_of_birth,
+            gender: data.gender, 
+            blood_group: data.blood_group, 
+            aadhaar_number: data.aadhaar_number,
+            pan_number: data.pan_number, 
+            mobile: data.mobile, 
+            email: data.email,
+            permanent_address: data.permanent_address, 
+            current_address: data.current_address,
+            photo_url: photo_url, 
+            dept_id: data.dept_id, 
+            desig_id: data.desig_id,
+            loc_id: data.loc_id, 
+            date_of_joining: data.date_of_joining, 
+            employment_type: data.employment_type,
+            pf_applicable: data.pf_applicable === 'true' || data.pf_applicable === true, 
+            esi_applicable: data.esi_applicable === 'true' || data.esi_applicable === true,
+            basic_pay: data.basic_pay, 
+            hra: data.hra || 0, 
+            da: data.da || 0, 
+            other_allowances: data.other_allowances || 0,
+            bank_account_number: data.bank_account_number, 
+            ifsc_code: data.ifsc_code, 
+            status: 'Active'
         };
 
         const fields = Object.keys(empData);
@@ -144,9 +168,25 @@ exports.updateEmployee = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Employee retirement/exit has been initiated. Updates locked.' });
         }
 
-        const updateData = req.body;
+        let updateData = req.body;
+
+        // Handle multipart data if sent as stringified JSON under 'data' field
+        if (updateData.data && typeof updateData.data === 'string') {
+            updateData = JSON.parse(updateData.data);
+        }
+
+        // Handle photo upload if any
+        if (req.file) {
+            updateData.photo_url = `/uploads/photos/${req.file.filename}`;
+        }
+
         // Basic fields that can be updated (excluding dept, desig, loc which happen via transfer)
-        const allowedFields = ['full_name', 'mobile', 'email', 'permanent_address', 'current_address', 'photo_url', 'bank_account_number', 'ifsc_code', 'basic_pay', 'hra', 'da', 'other_allowances'];
+        const allowedFields = [
+            'full_name', 'mobile', 'email', 'permanent_address', 'current_address', 
+            'photo_url', 'bank_account_number', 'ifsc_code', 'basic_pay', 'hra', 
+            'da', 'other_allowances', 'pf_applicable', 'esi_applicable', 'date_of_birth',
+            'gender', 'blood_group'
+        ];
         
         let updates = [];
         let params = [];
@@ -240,6 +280,35 @@ exports.getEmployeeTimeline = async (req, res) => {
         }
 
         res.json({ success: true, data: timeline });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+// SOFT DELETE EMPLOYEE (Admin only)
+exports.deleteEmployee = async (req, res) => {
+    try {
+        const { emp_id } = req.params;
+        const [empRows] = await pool.query('SELECT full_name, status FROM employees WHERE emp_id = ?', [emp_id]);
+        if (!empRows.length) return res.status(404).json({ success: false, message: 'Employee not found' });
+        if (empRows[0].status === 'Deleted') {
+            return res.status(400).json({ success: false, message: 'Employee already deleted.' });
+        }
+
+        await pool.query(`UPDATE employees SET status = 'Deleted' WHERE emp_id = ?`, [emp_id]);
+
+        // Write to audit_log
+        await pool.query(
+            `INSERT INTO audit_log (user_id, action_type, table_name, record_id, old_value, new_value)
+             VALUES (?, 'DELETE', 'employees', ?, ?, ?)`,
+            [
+                req.user.id,
+                emp_id,
+                JSON.stringify({ emp_id, full_name: empRows[0].full_name, status: empRows[0].status }),
+                JSON.stringify({ status: 'Deleted' })
+            ]
+        );
+
+        res.json({ success: true, message: `Employee ${empRows[0].full_name} (${emp_id}) has been removed.` });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

@@ -42,12 +42,19 @@ const Login = () => {
             <div className="w-full max-w-md bg-surface-container-lowest rounded-[2.5rem] p-10 shadow-2xl shadow-primary/5 ring-1 ring-slate-200/50 relative z-10 animate-in fade-in zoom-in-95 duration-500">
                 
                 {/* Logo / Header */}
-                <div className="text-center mb-10">
-                    <div className="w-16 h-16 bg-[#00387e] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/20 rotate-3 hover:rotate-0 transition-transform duration-300">
-                        <span className="material-symbols-outlined text-white text-3xl">admin_panel_settings</span>
+                <div className="flex flex-col items-center">
+                    <div style={{ width: '128px', height: '128px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 24px auto', flexShrink: 0, background: 'white', padding: '4px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 0 0 4px #c0392b20' }}>
+                        <img 
+                            src="/KDMPMACU_Ltd_Logo.png" 
+                            alt="KDMPMACULTD Logo" 
+                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                            onError={(e) => {
+                                e.target.outerHTML = '<div style="width:100%; height:100%; background:#c0392b; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);"><span style="color:white; font-family:material-symbols-outlined; font-size:48px;">agriculture</span></div>';
+                            }}
+                        />
                     </div>
-                    <h2 className="font-headline font-black text-3xl tracking-tight text-on-surface">Admin Portal</h2>
-                    <p className="text-on-surface-variant text-sm mt-3 font-medium">Please sign in to access secure administrative tools.</p>
+                    <h2 className="font-headline font-black text-3xl tracking-tight text-[#1a4fa0] uppercase">KDMPMACULTD</h2>
+                    <p className="text-on-surface-variant text-[10px] uppercase font-black tracking-widest mt-3">Dairy Management Portal</p>
                 </div>
 
                 {error && (

@@ -41,8 +41,22 @@ const EmployeeRegistration = () => {
         // Tab 3
         basic_pay: '', hra: '', da: '', other_allowances: '', bank_account_number: '', ifsc_code: '', pf_applicable: false, esi_applicable: false,
         // Tab 4
-        nominees: [{ nominee_name: '', relationship: '', contact_number: '', address: '' }]
+        nominees: [{ nominee_name: '', relationship: '', contact_number: '', address: '' }],
+        // Photo
+        photo_file: null,
+        photo_url: ''
     });
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({
+                ...prev,
+                photo_file: file,
+                photo_url: URL.createObjectURL(file) // For preview if needed
+            }));
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -79,8 +93,29 @@ const EmployeeRegistration = () => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            // Send entire form object
-            const res = await api.post('/employees', formData);
+            // Create FormData for multipart submission
+            const data = new FormData();
+            
+            // Append the file if it exists
+            if (formData.photo_file) {
+                data.append('photo', formData.photo_file);
+            }
+
+            // Append all other fields as a single JSON string or individual fields
+            // The backend is prepared to handle both, but individual fields are cleaner for Multer
+            Object.keys(formData).forEach(key => {
+                if (key !== 'photo_file' && key !== 'photo_url' && key !== 'nominees') {
+                    data.append(key, formData[key]);
+                }
+            });
+
+            // Handle nominees as stringified JSON
+            data.append('nominees', JSON.stringify(formData.nominees));
+
+            const res = await api.post('/employees', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
             if (res.data.success) {
                 navigate('/employees');
             }
@@ -177,8 +212,23 @@ const EmployeeRegistration = () => {
                                 </div>
                                 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-label font-bold text-on-surface-variant uppercase tracking-widest">Photo URL</label>
-                                    <input type="text" name="photo_url" className="w-full bg-surface-container px-4 py-3 rounded-xl text-sm border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="/path/to/image.jpg" />
+                                    <label className="text-xs font-label font-bold text-on-surface-variant uppercase tracking-widest">Upload Photo (JPG/PNG)</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1">
+                                            <input 
+                                                type="file" 
+                                                name="photo" 
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="w-full bg-surface-container px-4 py-2.5 rounded-xl text-xs border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-[#1a4fa0] hover:file:bg-primary/20 cursor-pointer" 
+                                            />
+                                        </div>
+                                        {formData.photo_url && (
+                                            <div className="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden shrink-0 bg-white">
+                                                <img src={formData.photo_url} alt="Preview" className="w-full h-full object-cover" />
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 

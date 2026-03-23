@@ -74,7 +74,11 @@ const EmployeeProfile = () => {
                 
                 <div className="w-32 h-32 rounded-2xl bg-white shadow-lg ring-4 ring-white relative z-10 flex-shrink-0 flex items-center justify-center overflow-hidden">
                     {emp.photo_url ? (
-                        <img src={emp.photo_url} alt={emp.full_name} className="w-full h-full object-cover" />
+                        <img 
+                            src={emp.photo_url.startsWith('http') ? emp.photo_url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${emp.photo_url}`} 
+                            alt={emp.full_name} 
+                            className="w-full h-full object-cover" 
+                        />
                     ) : (
                         <div className="w-full h-full bg-[#1a4fa0] flex flex-col items-center justify-center text-4xl font-black text-white uppercase">
                             {emp.full_name ? emp.full_name.split(' ').map(n=>n[0]).join('').substring(0, 2) : 'EM'}
@@ -96,7 +100,10 @@ const EmployeeProfile = () => {
                             <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase ${emp.status === 'Active' ? 'bg-success-container/30 text-success' : 'bg-slate-200 text-slate-600'}`}>
                                 {emp.status}
                             </span>
-                            <button className="bg-slate-100 hover:bg-[#1a4fa0] hover:text-white text-slate-700 px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 group">
+                            <button 
+                                onClick={() => navigate(`/employees/edit?id=${emp.emp_id}`)}
+                                className="bg-slate-100 hover:bg-[#1a4fa0] hover:text-white text-slate-700 px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 group"
+                            >
                                 <span className="material-symbols-outlined text-[16px] group-hover:text-white">edit</span>
                                 Edit
                             </button>

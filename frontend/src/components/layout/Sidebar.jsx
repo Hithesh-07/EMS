@@ -13,6 +13,7 @@ const Sidebar = () => {
     { name: 'Transfers', icon: 'swap_horiz', path: '/transfers' },
     { name: 'Retirement & Exit', icon: 'exit_to_app', path: '/exit' },
     { name: 'Reports', icon: 'assessment', path: '/reports', canAccess: isAdmin },
+    { name: 'Announcements', icon: 'campaign', path: '/announcements', canAccess: isAdmin },
     { name: 'Admin Settings', icon: 'settings', path: '/admin', canAccess: isAdmin }
   ];
 
@@ -23,12 +24,19 @@ const Sidebar = () => {
       <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-full w-64 py-8 px-4 bg-slate-50/90 backdrop-blur-xl z-40 mt-16 shadow-[4px_0_24px_rgba(0,0,0,0.02)] border-r border-slate-200/50">
         
         <div className="flex items-center gap-3 px-2 mb-10">
-          <div className="w-10 h-10 editorial-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-            <span className="material-symbols-outlined text-xl">corporate_fare</span>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: 'white', padding: '2px', boxShadow: '0 0 0 2px #c0392b40' }}>
+            <img 
+              src="/KDMPMACU_Ltd_Logo.png" 
+              alt="KDMPMACULTD Logo" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              onError={(e) => {
+                e.target.outerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#c0392b; border-radius:50%;"><span style="color:white; font-weight:900; font-size:10px;">KDMP</span></div>';
+              }} 
+            />
           </div>
           <div>
-            <h2 className="font-headline font-extrabold text-[#1a4fa0] text-sm leading-tight tracking-tight">Editorial Authority</h2>
-            <p className="text-[0.65rem] text-slate-500 font-label uppercase tracking-widest mt-0.5">HR Management System</p>
+            <h2 className="font-headline font-extrabold text-[#1a4fa0] text-sm leading-tight tracking-tight uppercase">KDMPMACULTD</h2>
+            <p className="text-[0.7rem] text-slate-500 font-medium">Dairy Management</p>
           </div>
         </div>
 
