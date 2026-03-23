@@ -1,0 +1,53 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        headline: ['Manrope', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        label: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        primary: "#00387e",
+        "primary-container": "#1a4fa0",
+        "on-primary": "#ffffff",
+        "primary-fixed": "#d8e2ff",
+        "primary-fixed-dim": "#aec6ff",
+        "on-primary-fixed-variant": "#024394",
+        secondary: "#4f5e7f",
+        "secondary-container": "#c8d7fe",
+        "secondary-fixed": "#d8e2ff",
+        "secondary-fixed-dim": "#b7c6ec",
+        "on-secondary-fixed-variant": "#384666",
+        "tertiary-fixed": "#ffdbca",
+        "tertiary-fixed-dim": "#ffb68e",
+        "tertiary-container": "#883b00",
+        "on-tertiary-fixed-variant": "#773300",
+        surface: "#f8f9fa",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#f3f4f5",
+        "surface-container": "#edeeef",
+        "surface-container-high": "#e7e8e9",
+        "surface-container-highest": "#e1e3e4",
+        "on-surface": "#191c1d",
+        "on-surface-variant": "#434751",
+        outline: "#737783",
+        "outline-variant": "#c3c6d3",
+        error: "#ba1a1a",
+        "error-container": "#ffdad6",
+        "on-error-container": "#93000a",
+      },
+      borderRadius: {
+        DEFAULT: "0.125rem",
+        lg: "0.25rem",
+        xl: "0.5rem",
+        full: "0.75rem",
+      },
+    },
+  },
+  plugins: [],
+}
