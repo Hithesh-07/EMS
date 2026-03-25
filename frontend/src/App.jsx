@@ -25,7 +25,7 @@ function AppContent() {
           <Routes>
             <Route path="/portal-admin" element={<Login />} />
             <Route path="/" element={<Layout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route index element={<Navigate to="/portal-admin" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="employees" element={<EmployeeList />} />
               <Route path="documents" element={

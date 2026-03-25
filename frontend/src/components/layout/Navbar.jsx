@@ -218,15 +218,17 @@ const Navbar = () => {
               <div className="w-9 h-9 rounded-full bg-[#1a4fa0] text-white flex items-center justify-center font-black text-xs ring-2 ring-primary/20 cursor-pointer select-none">
                 {getInitials()}
               </div>
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl ring-1 ring-slate-200 overflow-hidden opacity-0 group-hover:opacity-100 transition-all pointer-events-none group-hover:pointer-events-auto">
-                <div className="p-3 border-b border-slate-100">
-                  <p className="text-xs font-bold text-slate-800">{user.name}</p>
-                  <p className="text-[10px] text-slate-400">{user.email}</p>
+              <div className="absolute right-0 top-full w-48 pt-2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none group-hover:pointer-events-auto z-50">
+                <div className="bg-white rounded-xl shadow-xl ring-1 ring-slate-200 overflow-hidden">
+                  <div className="p-3 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-800">{user.name}</p>
+                    <p className="text-[10px] text-slate-400">{user.email}</p>
+                  </div>
+                  <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors">
+                    <span className="material-symbols-outlined text-[16px]">logout</span>
+                    Sign Out
+                  </button>
                 </div>
-                <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors">
-                  <span className="material-symbols-outlined text-[16px]">logout</span>
-                  Sign Out
-                </button>
               </div>
             </div>
           </div>
