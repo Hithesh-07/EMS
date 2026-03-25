@@ -28,17 +28,25 @@ const migrate = async () => {
             ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE AFTER created_at`);
         console.log('✅ Updated locations table');
 
-        // 4. Seed New Super Admin
+        // 4. Seed Super Admins
         const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash('ao123', salt);
         
-        const [existing] = await conn.query('SELECT * FROM users WHERE email = ?', ['ao@kurnoolmilkunion.com']);
-        if (existing.length === 0) {
+        // Admin 1: ao@kurnoolmilkunion.com
+        const [existing1] = await conn.query('SELECT * FROM users WHERE email = ?', ['ao@kurnoolmilkunion.com']);
+        if (existing1.length === 0) {
+            const hash1 = await bcrypt.hash('ao123', salt);
             await conn.query('INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)', 
-                ['AO Super Admin', 'ao@kurnoolmilkunion.com', hash, 'Admin']);
-            console.log('✅ Seeded new Super Admin: ao@kurnoolmilkunion.com');
-        } else {
-            console.log('ℹ️ Super Admin already exists, skipping seed.');
+                ['AO Super Admin', 'ao@kurnoolmilkunion.com', hash1, 'Admin']);
+            console.log('✅ Seeded Super Admin: ao@kurnoolmilkunion.com');
+        }
+
+        // Admin 2: admin@kdmpmacultd.com
+        const [existing2] = await conn.query('SELECT * FROM users WHERE email = ?', ['admin@kdmpmacultd.com']);
+        if (existing2.length === 0) {
+            const hash2 = await bcrypt.hash('admin123', salt);
+            await conn.query('INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)', 
+                ['System Admin', 'admin@kdmpmacultd.com', hash2, 'Admin']);
+            console.log('✅ Seeded Secondary Admin: admin@kdmpmacultd.com');
         }
 
         console.log('\n🎉 Master Data migration completed successfully!');
