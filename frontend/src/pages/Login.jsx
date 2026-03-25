@@ -131,7 +131,7 @@ const Login = () => {
 
                 <div className="mt-10 pt-8 border-t border-slate-100 text-center">
                     <p className="text-xs text-slate-400 font-medium">
-                        Not an admin? <button className="text-primary font-bold hover:underline underline-offset-4" onClick={() => navigate('/dashboard')}>Return to Dashboard</button>
+                        Secure Administrative Portal
                     </p>
                 </div>
             </div>

@@ -24,8 +24,12 @@ function AppContent() {
       <BrowserRouter>
           <Routes>
             <Route path="/portal-admin" element={<Login />} />
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Navigate to="/portal-admin" replace />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="employees" element={<EmployeeList />} />
               <Route path="documents" element={
@@ -66,8 +70,9 @@ function AppContent() {
                   <Announcements />
                 </ProtectedRoute>
               } />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/portal-admin" replace />} />
             </Route>
+            <Route path="*" element={<Navigate to="/portal-admin" replace />} />
           </Routes>
       </BrowserRouter>
   );
