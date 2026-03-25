@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
+import MasterDataManagement from './MasterDataManagement';
 
 const UserManagement = () => {
+    const [view, setView] = useState('access'); // 'access' or 'master'
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -29,8 +31,8 @@ const UserManagement = () => {
     };
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        if (view === 'access') fetchUsers();
+    }, [view]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -57,83 +59,115 @@ const UserManagement = () => {
 
     return (
         <div className="w-full animate-in fade-in duration-500 max-w-6xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-                <div>
-                    <h2 className="font-headline font-black text-4xl text-[#00387e] tracking-tight">Access Control</h2>
-                    <p className="text-on-surface-variant text-sm mt-1 font-medium">Manage administrative privileges and staff access levels.</p>
-                </div>
+            {/* Main Admin Navigation */}
+            <div className="flex gap-4 mb-2 bg-[#00387e]/5 p-2 rounded-3xl w-fit">
                 <button 
-                    onClick={() => setShowAddModal(true)}
-                    className="editorial-gradient text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center gap-3"
+                    onClick={() => setView('access')}
+                    className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                        view === 'access' ? 'bg-[#00387e] text-white shadow-lg' : 'text-[#00387e] hover:bg-[#00387e]/10'
+                    }`}
                 >
-                    <span className="material-symbols-outlined text-[20px]">person_add</span>
-                    Create New Account
+                    Access Control
+                </button>
+                <button 
+                    onClick={() => setView('master')}
+                    className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                        view === 'master' ? 'bg-[#00387e] text-white shadow-lg' : 'text-[#00387e] hover:bg-[#00387e]/10'
+                    }`}
+                >
+                    Master Data
                 </button>
             </div>
 
-            {message.text && (
-                <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 animate-bounce shadow-sm ${message.type === 'success' ? 'bg-success-container/30 text-success border border-success/20' : 'bg-error-container/30 text-error border border-error/20'}`}>
-                    <span className="material-symbols-outlined text-[18px]">{message.type === 'success' ? 'check_circle' : 'error'}</span>
-                    <span className="text-xs font-bold leading-none">{message.text}</span>
+            {view === 'access' ? (
+                <>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 mt-6">
+                    <div>
+                        <h2 className="font-headline font-black text-4xl text-[#00387e] tracking-tight">Access Control</h2>
+                        <p className="text-on-surface-variant text-sm mt-1 font-medium">Manage administrative privileges and staff access levels.</p>
+                    </div>
+                    <button 
+                        onClick={() => setShowAddModal(true)}
+                        className="editorial-gradient text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center gap-3"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">person_add</span>
+                        Create New Account
+                    </button>
                 </div>
-            )}
 
-            <div className="grid grid-cols-1 gap-6">
-                <div className="bg-white rounded-[2.5rem] shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-slate-50 border-b border-slate-100">
-                                    <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Full Name</th>
-                                    <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Email Address</th>
-                                    <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">System Role</th>
-                                    <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Created On</th>
-                                    <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em] text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {loading ? (
-                                    <tr>
-                                        <td colSpan="5" className="py-20 text-center">
-                                            <div className="flex flex-col items-center gap-3">
-                                                <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                                                <span className="text-xs font-bold text-slate-400">Loading directory...</span>
-                                            </div>
-                                        </td>
+                {message.text && (
+                    <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 animate-bounce shadow-sm ${message.type === 'success' ? 'bg-success-container/30 text-success border border-success/20' : 'bg-error-container/30 text-error border border-error/20'}`}>
+                        <span className="material-symbols-outlined text-[18px]">{message.type === 'success' ? 'check_circle' : 'error'}</span>
+                        <span className="text-xs font-bold leading-none">{message.text}</span>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-6">
+                    <div className="bg-white rounded-[2.5rem] shadow-sm ring-1 ring-slate-200/50 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-slate-50 border-b border-slate-100">
+                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Full Name</th>
+                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Email Address</th>
+                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">System Role</th>
+                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Created On</th>
+                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em] text-center">Status</th>
                                     </tr>
-                                ) : users.map(user => (
-                                    <tr key={user.user_id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="py-5 px-8">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary font-black text-[10px] group-hover:scale-110 transition-transform">
-                                                    {user.name.split(' ').map(n => n[0]).join('')}
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan="5" className="py-20 text-center">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                                                    <span className="text-xs font-bold text-slate-400">Loading directory...</span>
                                                 </div>
-                                                <span className="font-bold text-slate-800 text-sm">{user.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-5 px-8 text-sm font-medium text-slate-500">{user.email}</td>
-                                        <td className="py-5 px-8">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
-                                                user.role === 'Admin' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 
-                                                user.role === 'HR Manager' ? 'bg-secondary-fixed text-on-secondary-fixed-variant' : 
-                                                'bg-slate-100 text-slate-500'
-                                            }`}>
-                                                {user.role}
-                                            </span>
-                                        </td>
-                                        <td className="py-5 px-8 text-sm text-slate-400 font-medium">
-                                            {new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                        </td>
-                                        <td className="py-5 px-8 text-center uppercase text-[10px] font-black text-success tracking-widest">
-                                            Active
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    ) : users.map(user => (
+                                        <tr key={user.user_id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="py-5 px-8">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary font-black text-[10px] group-hover:scale-110 transition-transform">
+                                                        {user.name.split(' ').map(n => n[0]).join('')}
+                                                    </div>
+                                                    <span className="font-bold text-slate-800 text-sm">{user.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-5 px-8 text-sm font-medium text-slate-500">{user.email}</td>
+                                            <td className="py-5 px-8">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
+                                                    user.role === 'Admin' ? 'bg-primary-fixed text-on-primary-fixed-variant' : 
+                                                    user.role === 'HR Manager' ? 'bg-secondary-fixed text-on-secondary-fixed-variant' : 
+                                                    'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                    {user.role}
+                                                </span>
+                                            </td>
+                                            <td className="py-5 px-8 text-sm text-slate-400 font-medium">
+                                                {new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </td>
+                                            <td className="py-5 px-8 text-center uppercase text-[10px] font-black text-success tracking-widest">
+                                                Active
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
+                </>
+            ) : (
+                <div className="mt-8">
+                    <div className="mb-10">
+                        <h2 className="font-headline font-black text-4xl text-[#00387e] tracking-tight">Organization Master Data</h2>
+                        <p className="text-on-surface-variant text-sm mt-1 font-medium">Configure core organizational units, hierarchies, and locations.</p>
+                    </div>
+                    <MasterDataManagement />
+                </div>
+            )}
 
             {/* Create User Modal */}
             {showAddModal && (

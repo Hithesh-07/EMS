@@ -25,9 +25,9 @@ const TransferForm = () => {
             try {
                 const [empRes, deptRes, desigRes, locRes] = await Promise.all([
                     api.get('/employees'),
-                    api.get('/admin/departments'),
-                    api.get('/admin/designations'),
-                    api.get('/admin/locations')
+                    api.get('/departments?activeOnly=true'),
+                    api.get('/designations?activeOnly=true'),
+                    api.get('/locations?activeOnly=true')
                 ]);
                 setEmployees(empRes.data.data);
                 setDepts(deptRes.data.data);

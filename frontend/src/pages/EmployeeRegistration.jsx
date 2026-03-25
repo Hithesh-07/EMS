@@ -16,9 +16,9 @@ const EmployeeRegistration = () => {
         const fetchLookups = async () => {
             try {
                 const [deptRes, desigRes, locRes] = await Promise.all([
-                    api.get('/departments'),
-                    api.get('/designations'),
-                    api.get('/locations')
+                    api.get('/departments?activeOnly=true'),
+                    api.get('/designations?activeOnly=true'),
+                    api.get('/locations?activeOnly=true')
                 ]);
                 if (deptRes.data.success) setDepartments(deptRes.data.data);
                 if (desigRes.data.success) setDesignations(desigRes.data.data);
