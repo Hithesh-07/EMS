@@ -138,7 +138,7 @@ exports.calculateAndCreateFnF = async (req, res) => {
             if (gratuity > 2000000) gratuity = 2000000;
         }
 
-        // Dummy calculations for others (in reality would come from payroll module)
+        // Placeholder values for components to be integrated with a full Payroll/Attendance module
         const leave_encashment = 0;
         const pf_settlement = 0;
         const esi_settlement = 0;

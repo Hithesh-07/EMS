@@ -27,10 +27,11 @@ exports.getReport = async (req, res) => {
 
         const [rows] = await pool.query(query, params);
 
-        if (format === 'pdf') {
-            return res.sendFile('mock_report.pdf', { root: './uploads' }); // Requires real PDFgen
-        } else if (format === 'excel') {
-            return res.sendFile('mock_report.xlsx', { root: './uploads' });
+        if (format === 'pdf' || format === 'excel') {
+            return res.status(501).json({ 
+                success: false, 
+                message: `${format.toUpperCase()} generation is currently pending system integration. Please use JSON format for now.` 
+            });
         }
 
         res.json({ success: true, data: rows });
