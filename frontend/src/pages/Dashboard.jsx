@@ -5,7 +5,7 @@ import api from '../api/axios';
 const Dashboard = () => {
     const navigate = useNavigate();
     
-    const [upcomingRetirements, setUpcomingRetirements] = useState([]);
+    const [recentEmployees, setRecentEmployees] = useState([]);
     const [loadingRecent, setLoadingRecent] = useState(true);
 
     useEffect(() => {
@@ -22,10 +22,10 @@ const Dashboard = () => {
                     });
                 }
 
-                // Fetch real upcoming retirements
-                const exitRes = await api.get('/exit/upcoming');
-                if (exitRes.data.success) {
-                    setUpcomingRetirements(exitRes.data.data.slice(0, 5));
+                // Fetch real recent employees
+                const empRes = await api.get('/employees?limit=5');
+                if (empRes.data.success) {
+                    setRecentEmployees(empRes.data.data);
                 }
             } catch (error) {
                 console.error("Dashboard data fetch failed:", error);
@@ -36,15 +36,6 @@ const Dashboard = () => {
 
         fetchDashboardData();
     }, []);
-
-    const getStatusBadge = (emp) => {
-        const retirementDate = new Date(emp.retirement_date);
-        const today = new Date();
-        const diffMonths = (retirementDate.getFullYear() - today.getFullYear()) * 12 + (retirementDate.getMonth() - today.getMonth());
-        
-        if (diffMonths <= 1) return <span className="bg-error-container text-on-error-container px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">DUE SOON</span>;
-        return <span className="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">UPCOMING</span>;
-    };
 
     return (
         <div className="w-full animate-in fade-in duration-500">
@@ -141,12 +132,12 @@ const Dashboard = () => {
                 
                 {/* Left Col: Quick Actions */}
                 <div className="space-y-4">
-                    <h3 className="font-headline font-bold text-lg mb-4 text-on-surface">Quick Actions</h3>
+                    <h3 className="font-headline font-bold text-lg mb-4 text-on-surface">Quick Links</h3>
                     
                     {[
-                        { title: 'Initiate Transfer', icon: 'swap_horiz', color: 'bg-primary-fixed text-[#1a4fa0]', path: '/transfers/new' },
-                        { title: 'Generate Report', icon: 'assessment', color: 'bg-tertiary-fixed text-tertiary-container', path: '/reports' },
-                        { title: 'Manage Documents', icon: 'description', color: 'bg-secondary-fixed text-on-secondary-fixed-variant', path: '/documents' },
+                        { title: 'Employee Directory', icon: 'groups', color: 'bg-primary-fixed text-[#1a4fa0]', path: '/employees' },
+                        { title: 'Transfer Management', icon: 'swap_horiz', color: 'bg-secondary-fixed text-on-secondary-fixed-variant', path: '/transfers' },
+                        { title: 'Retirement & Exits', icon: 'logout', color: 'bg-tertiary-fixed text-tertiary-container', path: '/exit' },
                     ].map(action => (
                         <button 
                             key={action.title}
@@ -166,19 +157,19 @@ const Dashboard = () => {
                     {/* Brand Card */}
                     <div className="mt-8 bg-primary-container rounded-2xl p-6 text-white relative overflow-hidden shadow-lg shadow-primary/20">
                         <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                        <h4 className="font-headline font-bold text-xl mb-2 relative z-10 tracking-tight uppercase">KDMPMACULTD</h4>
+                        <h4 className="font-headline font-bold text-xl mb-2 relative z-10 tracking-tight uppercase font-headline">KDMPMACULTD</h4>
                         <p className="text-sm text-white/80 mb-6 font-medium relative z-10 leading-relaxed pr-8 uppercase">Unified management for the premier dairy portal.</p>
-                        <button className="bg-white text-[#1a4fa0] px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide hover:shadow-lg transition-all relative z-10">
-                            Help Documentation
+                        <button onClick={() => navigate('/settings')} className="bg-white text-[#1a4fa0] px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide hover:shadow-lg transition-all relative z-10">
+                            System Settings
                         </button>
                     </div>
                 </div>
 
-                {/* Right Col: Retirement Alerts */}
+                {/* Right Col: Recent Staff Additions */}
                 <div className="xl:col-span-2 space-y-4">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-headline font-bold text-lg text-on-surface">Upcoming Retirements Details</h3>
-                        <button onClick={() => navigate('/exit')} className="text-[0.68rem] font-bold text-primary tracking-widest uppercase hover:underline">See All Alerts</button>
+                        <h3 className="font-headline font-bold text-lg text-on-surface">Recent Staff Additions</h3>
+                        <button onClick={() => navigate('/employees')} className="text-[0.68rem] font-bold text-primary tracking-widest uppercase hover:underline">View All Staff</button>
                     </div>
 
                     <div className="bg-surface-container-lowest rounded-2xl shadow-sm ring-1 ring-slate-100 overflow-hidden min-h-[300px]">
@@ -188,22 +179,32 @@ const Dashboard = () => {
                                     <tr className="bg-surface-container-low border-b-2 border-primary/20">
                                         <th className="py-4 px-6 text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant font-label w-1/3">Employee Name</th>
                                         <th className="py-4 px-6 text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant font-label">Department</th>
-                                        <th className="py-4 px-6 text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant font-label">Retirement Date</th>
+                                        <th className="py-4 px-6 text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant font-label">Join Date</th>
                                         <th className="py-4 px-6 text-[0.6875rem] font-bold uppercase tracking-widest text-on-surface-variant font-label text-right">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loadingRecent ? (
                                         <tr><td colSpan="4" className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Scanning Database...</td></tr>
-                                    ) : upcomingRetirements.length === 0 ? (
-                                        <tr><td colSpan="4" className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs italic">No Retirements Due This Month</td></tr>
+                                    ) : recentEmployees.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="4" className="py-20 text-center">
+                                                <div className="text-slate-400 font-bold uppercase tracking-widest text-xs italic mb-4">Your Employee Directory is Empty</div>
+                                                <button 
+                                                    onClick={() => navigate('/employees/new')}
+                                                    className="bg-primary/10 text-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider"
+                                                >
+                                                    Register First Employee
+                                                </button>
+                                            </td>
+                                        </tr>
                                     ) : (
-                                        upcomingRetirements.map((emp, index) => (
+                                        recentEmployees.map((emp, index) => (
                                             <tr key={emp.emp_id} className={`border-b border-surface-container-high last:border-0 ${index % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface'}`}>
                                                 <td className="py-5 px-6">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-500 font-bold text-xs shrink-0">
-                                                            {emp.full_name.split(' ').map(n=>n[0]).join('')}
+                                                        <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex flex-col items-center justify-center text-slate-500 font-bold text-xs shrink-0 uppercase">
+                                                            {emp.full_name ? emp.full_name.split(' ').map(n=>n[0]).join('') : 'EM'}
                                                         </div>
                                                         <div>
                                                             <div className="font-bold text-sm text-on-surface">{emp.full_name}</div>
@@ -211,12 +212,14 @@ const Dashboard = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="py-5 px-6 text-sm text-on-surface-variant">{emp.dept_name}</td>
+                                                <td className="py-5 px-6 text-sm text-on-surface-variant">{emp.dept_name || 'Unassigned'}</td>
                                                 <td className="py-5 px-6 text-sm text-on-surface-variant whitespace-nowrap">
-                                                    {new Date(emp.retirement_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    {emp.date_of_joining ? new Date(emp.date_of_joining).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
                                                 </td>
                                                 <td className="py-5 px-6 text-right">
-                                                    {getStatusBadge(emp)}
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${emp.status === 'Active' ? 'bg-success-container/20 text-success' : 'bg-slate-200 text-slate-500'}`}>
+                                                        {emp.status}
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))
