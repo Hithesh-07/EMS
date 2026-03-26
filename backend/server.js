@@ -20,6 +20,41 @@ const exitRoutes = require('./routes/exitRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const { startMonthlyRetirementCron } = require('./services/cronService');
+const pool = require('./config/db');
+
+// --- Start MySQL Auto-Migrations ---
+const runMigrations = async () => {
+  try {
+    await pool.query(`
+      ALTER TABLE departments 
+      ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS created_by INT;
+    `);
+    await pool.query(`
+      ALTER TABLE designations
+      ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS created_by INT;
+    `);
+    await pool.query(`
+      ALTER TABLE locations
+      ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE,
+      ADD COLUMN IF NOT EXISTS created_by INT;
+    `);
+    await pool.query(`
+      UPDATE departments SET is_active = 1 WHERE is_active IS NULL
+    `);
+    await pool.query(`
+      UPDATE designations SET is_active = 1 WHERE is_active IS NULL
+    `);
+    await pool.query(`
+      UPDATE locations SET is_active = 1 WHERE is_active IS NULL
+    `);
+    console.log('✅ MySQL Migrations applied successfully');
+  } catch (err) {
+    console.error('Migration error:', err.message);
+  }
+};
+runMigrations();
 
 app.use('/api/auth', authRoutes);
 app.use('/api', adminRoutes);
