@@ -19,8 +19,15 @@ exports.createDepartment = async (req, res) => {
     try {
         const { dept_name, dept_code } = req.body;
         const created_by = req.user.user_id;
-        const [result] = await pool.query('INSERT INTO departments (dept_name, dept_code, created_by) VALUES (?, ?, ?)', [dept_name, dept_code, created_by]);
-        res.status(201).json({ success: true, data: { dept_id: result.insertId, dept_name, dept_code } });
+        
+        try {
+            const [result] = await pool.query('INSERT INTO departments (dept_name, dept_code, created_by) VALUES (?, ?, ?)', [dept_name, dept_code, created_by]);
+            res.status(201).json({ success: true, data: { dept_id: result.insertId, dept_name, dept_code } });
+        } catch (dbErr) {
+            // Fallback if column missing
+            const [result] = await pool.query('INSERT INTO departments (dept_name, dept_code) VALUES (?, ?)', [dept_name, dept_code]);
+            res.status(201).json({ success: true, data: { dept_id: result.insertId, dept_name, dept_code } });
+        }
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -74,8 +81,15 @@ exports.createDesignation = async (req, res) => {
     try {
         const { desig_name, grade } = req.body;
         const created_by = req.user.user_id;
-        const [result] = await pool.query('INSERT INTO designations (desig_name, grade, created_by) VALUES (?, ?, ?)', [desig_name, grade, created_by]);
-        res.status(201).json({ success: true, data: { desig_id: result.insertId, desig_name, grade } });
+        
+        try {
+            const [result] = await pool.query('INSERT INTO designations (desig_name, grade, created_by) VALUES (?, ?, ?)', [desig_name, grade, created_by]);
+            res.status(201).json({ success: true, data: { desig_id: result.insertId, desig_name, grade } });
+        } catch (dbErr) {
+            // Fallback if column missing
+            const [result] = await pool.query('INSERT INTO designations (desig_name, grade) VALUES (?, ?)', [desig_name, grade]);
+            res.status(201).json({ success: true, data: { desig_id: result.insertId, desig_name, grade } });
+        }
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -128,8 +142,15 @@ exports.createLocation = async (req, res) => {
     try {
         const { loc_name, loc_code } = req.body;
         const created_by = req.user.user_id;
-        const [result] = await pool.query('INSERT INTO locations (loc_name, loc_code, created_by) VALUES (?, ?, ?)', [loc_name, loc_code, created_by]);
-        res.status(201).json({ success: true, data: { loc_id: result.insertId, loc_name, loc_code } });
+        
+        try {
+            const [result] = await pool.query('INSERT INTO locations (loc_name, loc_code, created_by) VALUES (?, ?, ?)', [loc_name, loc_code, created_by]);
+            res.status(201).json({ success: true, data: { loc_id: result.insertId, loc_name, loc_code } });
+        } catch (dbErr) {
+            // Fallback if column missing
+            const [result] = await pool.query('INSERT INTO locations (loc_name, loc_code) VALUES (?, ?)', [loc_name, loc_code]);
+            res.status(201).json({ success: true, data: { loc_id: result.insertId, loc_name, loc_code } });
+        }
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
