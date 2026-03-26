@@ -236,3 +236,33 @@ exports.createUser = async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+exports.updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, role } = req.body;
+        
+        await pool.query('UPDATE users SET name = ?, role = ? WHERE user_id = ?', [name, role, id]);
+        
+        res.json({ success: true, message: 'User updated successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const requestingAdminId = req.user.user_id;
+
+        // Prevent self-deletion
+        if (parseInt(id) === parseInt(requestingAdminId)) {
+            return res.status(400).json({ success: false, message: 'You cannot delete your own account' });
+        }
+
+        await pool.query('DELETE FROM users WHERE user_id = ?', [id]);
+        res.json({ success: true, message: 'User deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};

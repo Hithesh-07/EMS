@@ -31,5 +31,7 @@ router.get('/dashboard', getDashboardStats);
 
 router.get('/users', authorize('Admin'), getUsers);
 router.post('/users', authorize('Admin'), auditLog('users'), createUser);
+router.put('/users/:id', authorize('Admin'), auditLog('users'), updateUser);
+router.delete('/users/:id', authorize('Admin'), auditLog('users'), deleteUser);
 
 module.exports = router;

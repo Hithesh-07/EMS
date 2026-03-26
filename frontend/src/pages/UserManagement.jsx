@@ -7,6 +7,8 @@ const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingUser, setEditingUser] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -43,17 +45,52 @@ const UserManagement = () => {
         setSaving(true);
         setMessage({ type: '', text: '' });
         try {
-            const res = await api.post('/users', formData);
+            if (editingUser) {
+                const res = await api.put(`/users/${editingUser.user_id}`, {
+                    name: formData.name,
+                    role: formData.role
+                });
+                if (res.data.success) {
+                    setMessage({ type: 'success', text: 'User updated successfully!' });
+                    setShowEditModal(false);
+                }
+            } else {
+                const res = await api.post('/users', formData);
+                if (res.data.success) {
+                    setMessage({ type: 'success', text: 'User created successfully!' });
+                    setShowAddModal(false);
+                }
+            }
+            setFormData({ name: '', email: '', password: '', role: 'Viewer' });
+            fetchUsers();
+        } catch (err) {
+            setMessage({ type: 'error', text: err.response?.data?.message || 'Action failed' });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleEdit = (user) => {
+        setEditingUser(user);
+        setFormData({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            password: '' // Not used for edit
+        });
+        setShowEditModal(true);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to PERMANENTLY delete this user?')) return;
+        try {
+            const res = await api.delete(`/users/${id}`);
             if (res.data.success) {
-                setMessage({ type: 'success', text: 'User created successfully!' });
-                setFormData({ name: '', email: '', password: '', role: 'Viewer' });
-                setShowAddModal(false);
+                setMessage({ type: 'success', text: 'User removed successfully' });
                 fetchUsers();
             }
         } catch (err) {
-            setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to create user' });
-        } finally {
-            setSaving(false);
+            alert(err.response?.data?.message || 'Delete failed');
         }
     };
 
@@ -87,7 +124,11 @@ const UserManagement = () => {
                         <p className="text-on-surface-variant text-sm mt-1 font-medium">Manage administrative privileges and staff access levels.</p>
                     </div>
                     <button 
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => {
+                            setEditingUser(null);
+                            setFormData({ name: '', email: '', password: '', role: 'Viewer' });
+                            setShowAddModal(true);
+                        }}
                         className="editorial-gradient text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all flex items-center gap-3"
                     >
                         <span className="material-symbols-outlined text-[20px]">person_add</span>
@@ -112,7 +153,7 @@ const UserManagement = () => {
                                         <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Email Address</th>
                                         <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">System Role</th>
                                         <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em]">Created On</th>
-                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em] text-center">Status</th>
+                                        <th className="py-5 px-8 font-label text-[10px] font-black text-on-surface-variant uppercase tracking-[0.1em] text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
@@ -148,8 +189,23 @@ const UserManagement = () => {
                                             <td className="py-5 px-8 text-sm text-slate-400 font-medium">
                                                 {new Date(user.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                             </td>
-                                            <td className="py-5 px-8 text-center uppercase text-[10px] font-black text-success tracking-widest">
-                                                Active
+                                            <td className="py-5 px-8 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button 
+                                                        onClick={() => handleEdit(user)}
+                                                        className="w-8 h-8 rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center"
+                                                        title="Edit User"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(user.user_id)}
+                                                        className="w-8 h-8 rounded-xl bg-error-container/10 text-error hover:bg-error hover:text-white transition-all flex items-center justify-center"
+                                                        title="Delete User"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -169,14 +225,18 @@ const UserManagement = () => {
                 </div>
             )}
 
-            {/* Create User Modal */}
-            {showAddModal && (
+            {/* Create/Edit User Modal */}
+            {(showAddModal || showEditModal) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowAddModal(false)}></div>
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setShowEditModal(false); }}></div>
                     <div className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl relative z-10 p-10 ring-1 ring-white/20 animate-in zoom-in-95 duration-300">
                         <div className="text-center mb-8">
-                            <h3 className="font-headline font-black text-2xl text-slate-800">New Staff Member</h3>
-                            <p className="text-xs font-medium text-slate-500 mt-2">Assign roles and credentials for new administrators.</p>
+                            <h3 className="font-headline font-black text-2xl text-slate-800">
+                                {showEditModal ? 'Update Account' : 'New Staff Member'}
+                            </h3>
+                            <p className="text-xs font-medium text-slate-500 mt-2">
+                                {showEditModal ? 'Modify user privileges and identity.' : 'Assign roles and credentials for new administrators.'}
+                            </p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -198,9 +258,9 @@ const UserManagement = () => {
                                     type="email" 
                                     name="email"
                                     value={formData.email}
-                                    onChange={handleChange}
+                                    disabled={showEditModal}
                                     required
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
+                                    className={`w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm outline-none transition-all ${showEditModal ? 'opacity-50 cursor-not-allowed' : 'focus:ring-4 focus:ring-primary/5 focus:border-primary'}`}
                                     placeholder="email@editorial.com"
                                 />
                             </div>
@@ -218,23 +278,26 @@ const UserManagement = () => {
                                     <option value="Admin">Super Admin</option>
                                 </select>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Initial Password</label>
-                                <input 
-                                    type="password" 
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
-                                    placeholder="••••••••"
-                                />
-                            </div>
+                            
+                            {!showEditModal && (
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Initial Password</label>
+                                    <input 
+                                        type="password" 
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            )}
 
                             <div className="flex gap-4 pt-4">
                                 <button 
                                     type="button" 
-                                    onClick={() => setShowAddModal(false)}
+                                    onClick={() => { setShowAddModal(false); setShowEditModal(false); }}
                                     className="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-colors"
                                 >
                                     Cancel
@@ -244,7 +307,7 @@ const UserManagement = () => {
                                     disabled={saving}
                                     className="flex-1 editorial-gradient text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-50 transition-all"
                                 >
-                                    {saving ? 'Creating...' : 'Grant Access'}
+                                    {saving ? 'Processing...' : (showEditModal ? 'Update User' : 'Grant Access')}
                                 </button>
                             </div>
                         </form>

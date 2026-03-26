@@ -17,6 +17,8 @@ import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
+import ChangePassword from './pages/ChangePassword';
+
 function AppContent() {
   const { canManageEmployees, isAdmin } = useAuth();
   
@@ -70,6 +72,7 @@ function AppContent() {
                   <Announcements />
                 </ProtectedRoute>
               } />
+              <Route path="profile/change-password" element={<ChangePassword />} />
               <Route path="*" element={<Navigate to="/portal-admin" replace />} />
             </Route>
             <Route path="*" element={<Navigate to="/portal-admin" replace />} />

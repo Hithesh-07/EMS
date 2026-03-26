@@ -224,6 +224,10 @@ const Navbar = () => {
                     <p className="text-xs font-bold text-slate-800">{user.name}</p>
                     <p className="text-[10px] text-slate-400">{user.email}</p>
                   </div>
+                  <button onClick={() => { navigate('/profile/change-password'); }} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors">
+                    <span className="material-symbols-outlined text-[16px]">lock_reset</span>
+                    Change Password
+                  </button>
                   <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors">
                     <span className="material-symbols-outlined text-[16px]">logout</span>
                     Sign Out
