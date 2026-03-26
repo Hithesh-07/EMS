@@ -8,24 +8,18 @@ const migrate = async () => {
     const conn = await pool.getConnection();
     try {
         // 1. Update Departments
-        await conn.query(`ALTER TABLE departments 
-            ADD COLUMN IF NOT EXISTS created_by INT AFTER dept_code,
-            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER created_by,
-            ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE AFTER created_at`);
+        await conn.query(`ALTER TABLE departments ADD COLUMN IF NOT EXISTS created_by INT`);
+        await conn.query(`ALTER TABLE departments ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE`);
         console.log('✅ Updated departments table');
 
         // 2. Update Designations
-        await conn.query(`ALTER TABLE designations 
-            ADD COLUMN IF NOT EXISTS created_by INT AFTER grade,
-            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER created_by,
-            ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE AFTER created_at`);
+        await conn.query(`ALTER TABLE designations ADD COLUMN IF NOT EXISTS created_by INT`);
+        await conn.query(`ALTER TABLE designations ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE`);
         console.log('✅ Updated designations table');
 
         // 3. Update Locations
-        await conn.query(`ALTER TABLE locations 
-            ADD COLUMN IF NOT EXISTS created_by INT AFTER loc_code,
-            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER created_by,
-            ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE AFTER created_at`);
+        await conn.query(`ALTER TABLE locations ADD COLUMN IF NOT EXISTS created_by INT`);
+        await conn.query(`ALTER TABLE locations ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE`);
         console.log('✅ Updated locations table');
 
         // 4. Seed Super Admins

@@ -211,9 +211,9 @@ const MasterDataManagement = () => {
                                     ))}
                                     <td className="py-5 px-8 text-center">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase ${
-                                            item.is_active ? 'bg-success-container/30 text-success' : 'bg-slate-100 text-slate-400'
+                                            item.is_active ? 'bg-success-container/30 text-success' : 'bg-slate-100 text-slate-500'
                                         }`}>
-                                            {item.is_active ? 'Active' : 'Hidden'}
+                                            {item.is_active ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
                                     <td className="py-5 px-8 text-right">
