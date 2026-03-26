@@ -3,7 +3,7 @@ const {
     getDepartments, createDepartment, updateDepartment, deleteDepartment, 
     getDesignations, createDesignation, updateDesignation, deleteDesignation, 
     getLocations, createLocation, updateLocation, deleteLocation,
-    getDashboardStats, getUsers, createUser
+    getDashboardStats, getUsers, createUser, updateUser, deleteUser
 } = require('../controllers/adminController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 const auditLog = require('../middlewares/auditMiddleware');
